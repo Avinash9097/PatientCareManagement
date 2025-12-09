@@ -1,5 +1,9 @@
 ﻿import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Header from '../components/Header';
+import LeftSidebar from '../components/LeftSidebar';
+import RightSidebar from '../components/RightSidebar';
+import RightListPane from '../components/RightListPane';
 
 /**
  * CarePlanPage.jsx
@@ -425,75 +429,18 @@ export default function CarePlanPage() {
         .badge { font-size:10px; border:1px solid #e5e7eb; border-radius:.375rem; padding:.1rem .35rem; color:#525252 }
       `}</style>
             <div className="flex flex-col h-full">
-                {/* TOP BAR */}
-                <header className="h-14 bg-white border-b border-neutral-200 px-3 lg:px-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3 min-w-0">
-                        <div className="text-sm font-semibold truncate">XYZ â€” Care Navigator</div>
-                        <div className="hidden md:flex text-xs text-neutral-500 items-center gap-2 shrink-0">
-                            <span>All Tenants</span><span>â€¢</span><span>Today</span>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                        <div className="relative">
-                            <input
-                                id="globalSearch"
-                                type="text"
-                                className="h-9 w-64 lg:w-80 rounded-xl border border-neutral-300 px-3 text-sm focus:outline-none focus:ring focus:ring-neutral-200"
-                                placeholder="Search patients, tasks, docs..."
-                                value={globalSearch}
-                                onChange={(e) => setGlobalSearch(e.target.value)}
-                            />
-                        </div>
-
-                        <button className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-neutral-100">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-neutral-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.77 9.77 0 01-4.39-1.02L3 20l1.37-3.93A7.77 7.77 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                            </svg>
-                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">3</span>
-                        </button>
-
-                        <button className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-neutral-100">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-neutral-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M12 22c1.1 0 2-.9 2-2h-4a2 2 0 002 2zm6-6V10a6 6 0 10-12 0v6l-2 2v1h16v-1l-2-2z" />
-                            </svg>
-                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">7</span>
-                        </button>
-
-                        <button id="newBtn" className="h-9 px-3 rounded-xl bg-neutral-900 text-white text-sm hover:bg-neutral-800">New</button>
-                    </div>
-                </header>
-
+                {/* TOP BAR */}                
+                <Header globalSearch={globalSearch} setGlobalSearch={setGlobalSearch} />
                 {/* MAIN */}
                 <div className="flex flex-1 min-h-0">
                     {/* LEFT ICON SIDEBAR */}
-                    <aside id="leftBar" ref={leftBarRef} className="h-full bg-white border-r border-neutral-200 flex flex-col items-center py-3 gap-2">
-                        <div className="text-[10px] font-semibold tracking-wide">MCP</div>
-                        <a href="#" className="nav-item relative w-10 h-10 flex items-center justify-center rounded-xl hover:bg-neutral-100">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M3 7a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2h-5l-2 2-2-2H5a2 2 0 01-2-2V7z" /></svg>
-                            <span className="tooltip">Tasks</span>
-                        </a>
-
-                        <a href="#" className="nav-item relative w-10 h-10 flex items-center justify-center rounded-xl hover:bg-neutral-100">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3M3 10h18M5 21h14a2 2 0 002-2v-9H3v9a2 2 0 002 2z" /></svg>
-                            <span className="tooltip">Calendar</span>
-                        </a>
-
-                        <a href="ptdash.html" className="nav-item relative w-10 h-10 flex items-center justify-center rounded-xl hover:bg-neutral-100">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M16 14a4 4 0 10-8 0v1a4 4 0 01-4 4h16a4 4 0 01-4-4v-1zM12 12a4 4 0 100-8 4 4 0 000 8z" /></svg>
-                            <span className="tooltip">Patients</span>
-                        </a>
-
-                        <div className="mt-auto">
-                            <button id="collapseLeft" className="w-10 h-10 rounded-xl hover:bg-neutral-100" title="Collapse/expand left"
-                                onClick={() => {
-                                    const cur = getComputedStyle(leftBarRef.current).width === "16px" ? "4rem" : "16px";
-                                    leftBarRef.current.style.width = cur;
-                                }}>
-                                <svg className="w-5 h-5 mx-auto" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
-                            </button>
-                        </div>
-                    </aside>
+                    <LeftSidebar
+                      leftBarRef={leftBarRef}
+                      onCollapse={() => {
+                        const cur = getComputedStyle(leftBarRef.current).width === "16px" ? "4rem" : "16px";
+                        leftBarRef.current.style.width = cur;
+                      }}
+                    />
 
                     {/* APP COLUMN */}
                     <div id="appCol" className="flex-1 min-w-0 flex">
@@ -778,86 +725,16 @@ export default function CarePlanPage() {
                     <div id="gutterBC" ref={gutterBCRef} className="gutter" role="separator" aria-orientation="vertical" tabIndex="0" title="Drag to resize"></div>
 
                     {/* RIGHT SECONDARY LIST */}
-                    <section id="rightListPane" ref={rightListPaneRef} className="w-[300px] min-w-[220px] max-w-[440px] bg-white border-l border-neutral-200 flex flex-col">
-                        <div className="h-12 px-3 flex items-center justify-between border-b border-neutral-200">
-                            <div className="text-sm font-semibold">Tools</div>
-                            <div className="flex items-center gap-1">
-                                <button className="h-8 w-8 rounded-lg hover:bg-neutral-100" title="Refresh" onClick={() => { /* refresh tools */ }}>
-                                    <svg className="w-4 h-4 mx-auto" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M4 4v6h6M20 20v-6h-6M20 9a8 8 0 10-3.3 6.5" /></svg>
-                                </button>
-                            </div>
-                        </div>
-                        <div id="rightListItems" className="flex-1 overflow-y-auto divide-y divide-neutral-200 text-sm">
-                            {[
-                                { id: "exp", name: "Export Data", updated: "Now", desc: "CSV/XLSX export wizard" },
-                                { id: "imp", name: "Import Data", updated: "Today", desc: "Map + validate incoming fields" },
-                                { id: "aud", name: "Audit Log", updated: "Yesterday", desc: "User actions & PHI access trail" },
-                                { id: "rep", name: "Reports", updated: "2025-08-10", desc: "Operational KPIs & dashboards", action: () => navigate('/rbc') },
-                                { id: "cfg", name: "Configuration", updated: "2025-08-07", desc: "Columns, roles, policies" }
-                            ].map((r) => (
-                                <div key={r.id} className="px-3 py-3 hover:bg-neutral-50 cursor-pointer" onClick={() => { r.action && r.action() }}>
-                                    <div className="flex items-center justify-between">
-                                        <div className="text-sm font-medium">{r.name}</div>
-                                        <span className="text-[11px] text-neutral-500">{r.updated}</span>
-                                    </div>
-                                    <div className="text-xs text-neutral-500 truncate">{r.desc}</div>
-                                </div>
-                            ))}
-                        </div>
-                    </section>
+                    <RightListPane rightListPaneRef={rightListPaneRef} navigate={navigate} />
 
                     {/* RIGHT ICON SIDEBAR */}
-                    <aside id="rightBar" ref={rightBarRef} className="w-16 bg-white border-l border-neutral-200 flex flex-col items-center py-3 gap-2">
-                        <a tabIndex={0} className="nav-item relative w-10 h-10 flex items-center justify-center rounded-xl hover:bg-neutral-100">
-                            <div className="w-6 h-6 rounded-lg bg-neutral-900 text-white text-[10px] font-semibold grid place-items-center">MCP</div>
-                            <div role="tooltip" className="tooltip w-56 right-full mr-2">
-                                <div className="font-semibold">MasterCarePlan â€” Care Navigator</div>
-                                <div className="mt-1 flex items-center gap-2 text-[11px] text-neutral-300">
-                                    <span>All Tenants</span><span className="w-1 h-1 rounded-full bg-neutral-500"></span><span>Today</span>
-                                </div>
-                            </div>
-                        </a>
-
-                        <a href="RBC.html" className="nav-item relative w-10 h-10 flex items-center justify-center rounded-xl hover:bg-neutral-100">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M4 4h16v16H4z" /><path d="M9 4v16M15 4v16" /></svg>
-                            <span className="tooltip">Reports</span>
-                        </a>
-
-                        <a href="AdvTable.html" className="nav-item relative w-10 h-10 flex items-center justify-center rounded-xl hover:bg-neutral-100">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M4 4h16v16H4z" /><path d="M4 10h16M10 4v16" /></svg>
-                            <span className="tooltip">Tables</span>
-                        </a>
-
-                        <a href="contactManagement.html" className="nav-item relative w-10 h-10 flex items-center justify-center rounded-xl hover:bg-neutral-100">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M4 4h16v16H4z" /><path d="M4 10h16M10 4v16" /></svg>
-                            <span className="tooltip">Contact Management</span>
-                        </a>
-
-                        <a href="#" className="nav-item relative w-10 h-10 flex items-center justify-center rounded-xl hover:bg-neutral-100">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h6" /></svg>
-                            <span className="tooltip">Settings</span>
-                        </a>
-
-                        <a href="alertManagement.html" className="nav-item relative w-10 h-10 flex items-center justify-center rounded-xl hover:bg-neutral-100">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h6" /></svg>
-                            <span className="tooltip">Alert Management</span>
-                        </a>
-
-                        <a href="MedicationManagement.html" className="nav-item relative w-10 h-10 flex items-center justify-center rounded-xl hover:bg-neutral-100">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h6" /></svg>
-                            <span className="tooltip">Medication Management</span>
-                        </a>
-
-                        <div className="mt-auto">
-                            <button id="collapseRight" className="w-10 h-10 rounded-xl hover:bg-neutral-100" title="Collapse/expand right" onClick={() => {
-                                const w = getComputedStyle(rightBarRef.current).width === "16px" ? "4rem" : "16px";
-                                rightBarRef.current.style.width = w;
-                            }}>
-                                <svg className="w-5 h-5 mx-auto" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" /></svg>
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M3 5h18M6 10h12M10 15h4" /></svg>
-                            </button>
-                        </div>
-                    </aside >
+                    <RightSidebar
+                      rightBarRef={rightBarRef}
+                      onCollapse={() => {
+                        const w = getComputedStyle(rightBarRef.current).width === "16px" ? "4rem" : "16px";
+                        rightBarRef.current.style.width = w;
+                      }}
+                    />
                 </div >
             </div >
 
