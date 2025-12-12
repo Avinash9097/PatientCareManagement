@@ -4,6 +4,13 @@ import Header from '../components/Header';
 import LeftSidebar from '../components/LeftSidebar';
 import RightSidebar from '../components/RightSidebar';
 import RightListPane from '../components/RightListPane';
+import NewDashboard from './NewDashboard';
+import TenantSetup from './TenantSetup';
+import DataReporting from './DataReporting';
+import MasterTables from './MasterTables';
+import EmailTemplates from './EmailTemplates';
+import Scheduling from './Scheduling';
+import UserManagement from './UserManagement';
 
 /**
  * CarePlanPage.jsx
@@ -79,6 +86,19 @@ export default function CarePlanPage() {
     const [listViewMenuOpen, setListViewMenuOpen] = useState(false);
     const [activeTab, setActiveTab] = useState("activity"); // 'call', 'message', 'activity'
     const [showToast, setShowToast] = useState(false);
+    const [showDashboardPanel, setShowDashboardPanel] = useState(false);
+    const [showTenantSetup, setShowTenantSetup] = useState(false);
+    const [showDataReporting, setShowDataReporting] = useState(false);
+    const [showMasterTables, setShowMasterTables] = useState(false);
+    const [showEmailTemplates, setShowEmailTemplates] = useState(false);
+    const [showScheduling, setShowScheduling] = useState(false);
+    const [showUserManagement, setShowUserManagement] = useState(false);
+    const [taskModalOpen, setTaskModalOpen] = useState(false);
+    const [taskModalPatient, setTaskModalPatient] = useState(null);
+    const [shareModalOpen, setShareModalOpen] = useState(false);
+    const [shareModalPatient, setShareModalPatient] = useState(null);
+    const [selectedPatient, setSelectedPatient] = useState(null);
+    const [patientDetailTab, setPatientDetailTab] = useState('overview');
 
     // Refs for drawer inputs
     const callNumberRef = useRef(null);
@@ -372,6 +392,35 @@ export default function CarePlanPage() {
         return () => clearTimeout(timer);
     }, []);
 
+    /* ====== Right Sidebar Button Handlers ====== */
+    useEffect(() => {
+        const handleEmailTemplatesClick = () => {
+            setShowEmailTemplates(true);
+        };
+
+        const handleSchedulingClick = () => {
+            setShowScheduling(true);
+        };
+
+        const emailTemplatesBtn = document.getElementById('openEmailTemplates');
+        const schedulingBtn = document.getElementById('openScheduling');
+        if (emailTemplatesBtn) {
+            emailTemplatesBtn.addEventListener('click', handleEmailTemplatesClick);
+        }
+        if (schedulingBtn) {
+            schedulingBtn.addEventListener('click', handleSchedulingClick);
+        }
+
+        return () => {
+            if (emailTemplatesBtn) {
+                emailTemplatesBtn.removeEventListener('click', handleEmailTemplatesClick);
+            }
+            if (schedulingBtn) {
+                schedulingBtn.removeEventListener('click', handleSchedulingClick);
+            }
+        };
+    }, []);
+
     /* ====== UI Render helpers ====== */
     function renderRiskBadge(val) {
         const tone = val === "High" ? "bg-red-100 text-red-700" : val === "Medium" ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700";
@@ -411,7 +460,7 @@ export default function CarePlanPage() {
         #listWrap.comfortable .rc-card-item { padding: 1.25rem; }
         #listWrap.striped .rc-card-item:nth-child(even) { background-color: #f9fafb; }
 
-        .drawer { position: fixed; top: 56px; right: 0; height: calc(100vh - 56px); width: 380px; background:#fff; border-left:1px solid #e5e7eb; box-shadow:-10px 0 30px rgba(0,0,0,.08); transform: translateX(100%); transition: transform .2s ease; will-change: transform; z-index:50 }
+        .drawer { position: fixed; top: 56px; right: 0; height: calc(100vh - 56px); width: 420px; background:#fff; border-left:1px solid #e5e7eb; box-shadow:-10px 0 30px rgba(0,0,0,.08); transform: translateX(100%); transition: transform .2s ease; will-change: transform; z-index:50 }
         .drawer.open { transform: translateX(0) }
         .drawer-mask { position: fixed; inset: 56px 0 0 0; background: rgba(17,24,39,.35); backdrop-filter: saturate(120%) blur(1px); opacity:0; pointer-events:none; transition: opacity .2s ease; z-index:40 }
         .drawer-mask.show { opacity:1; pointer-events:auto }
@@ -434,12 +483,57 @@ export default function CarePlanPage() {
                 {/* MAIN */}
                 <div className="flex flex-1 min-h-0">
                     {/* LEFT ICON SIDEBAR */}
-                    <LeftSidebar
+                                        <LeftSidebar
                       leftBarRef={leftBarRef}
-                      onCollapse={() => {
+                                            onCollapse={() => {
                         const cur = getComputedStyle(leftBarRef.current).width === "16px" ? "4rem" : "16px";
                         leftBarRef.current.style.width = cur;
                       }}
+                                                                                        onShowDashboard={() => {
+                          setShowTenantSetup(false);
+                          setShowDataReporting(false);
+                          setShowMasterTables(false);
+                          setShowEmailTemplates(false);
+                          setShowScheduling(false);
+                          setShowUserManagement(false);
+                          setShowDashboardPanel(true);
+                        }}
+                                                                                        onShowTenantSetup={() => {
+                          setShowDashboardPanel(false);
+                          setShowDataReporting(false);
+                          setShowMasterTables(false);
+                          setShowEmailTemplates(false);
+                          setShowScheduling(false);
+                          setShowUserManagement(false);
+                          setShowTenantSetup(true);
+                        }}
+                                                                                        onShowDataReporting={() => {
+                          setShowDashboardPanel(false);
+                          setShowTenantSetup(false);
+                          setShowMasterTables(false);
+                          setShowEmailTemplates(false);
+                          setShowScheduling(false);
+                          setShowUserManagement(false);
+                          setShowDataReporting(true);
+                        }}
+                                                                                        onShowMasterTables={() => {
+                          setShowDashboardPanel(false);
+                          setShowTenantSetup(false);
+                          setShowDataReporting(false);
+                          setShowEmailTemplates(false);
+                          setShowScheduling(false);
+                          setShowUserManagement(false);
+                          setShowMasterTables(true);
+                        }}
+                                                                                        onShowUserManagement={() => { 
+                          setShowTenantSetup(false);
+                          setShowDataReporting(false);
+                          setShowMasterTables(false);
+                          setShowEmailTemplates(false);
+                          setShowScheduling(false);
+                          setShowDashboardPanel(false);
+                          setShowUserManagement(true); 
+                        }}
                     />
 
                     {/* APP COLUMN */}
@@ -457,20 +551,60 @@ export default function CarePlanPage() {
                             </div>
                             <div id="listItems" className="flex-1 overflow-y-auto divide-y divide-neutral-200 text-sm">
                                 {rows.map((r) => (
-                                    <div key={r.id} className="px-3 py-3 hover:bg-neutral-50 cursor-pointer" onClick={() => {
-                                        // scroll to row: not necessary in react table but we can highlight instead
-                                        const el = document.querySelector(`#row-${r.id}`);
-                                        if (el) {
-                                            el.scrollIntoView({ behavior: "smooth", block: "center" });
-                                            el.classList.add("bg-amber-50");
-                                            setTimeout(() => el.classList.remove("bg-amber-50"), 900);
-                                        }
+                                    <div key={r.id} className={`px-3 py-3 hover:bg-neutral-50 cursor-pointer ${selectedPatient?.id === r.id ? 'bg-blue-50 border-l-2 border-blue-500' : ''}`} onClick={() => {
+                                        setSelectedPatient(r);
+                                        setPatientDetailTab('overview');
                                     }}>
                                         <div className="flex items-center justify-between">
                                             <div className="text-sm font-medium">{r.name}</div>
                                             <span className="text-[11px] text-neutral-500">{r.updated}</span>
                                         </div>
-                                        <div className="text-xs text-neutral-500 truncate">Risk: {r.risk} â€¢ {r.status} â€¢ {r.careMgr}</div>
+                                        <div className="flex items-center justify-between">
+                                            <div className="text-xs text-neutral-500 truncate flex-1">Risk: {r.risk} • {r.status} • {r.careMgr}</div>
+                                            {/* Action Icons */}
+                                            <div className="flex items-center gap-1 ml-2 flex-shrink-0">
+                                                {/* Task Icon */}
+                                                <button 
+                                                    className="w-5 h-5 rounded flex items-center justify-center hover:bg-purple-100 text-purple-500 transition-colors"
+                                                    title="Create Task"
+                                                    onClick={(e) => { e.stopPropagation(); setTaskModalPatient(r); setTaskModalOpen(true); }}
+                                                >
+                                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                                                        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                                                    </svg>
+                                                </button>
+                                                {/* Lightning/Quick Action Icon */}
+                                                <button 
+                                                    className="w-5 h-5 rounded flex items-center justify-center hover:bg-amber-100 text-amber-500 transition-colors"
+                                                    title="Quick Action"
+                                                    onClick={(e) => { e.stopPropagation(); openDrawer(r, "action"); }}
+                                                >
+                                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                                                        <path d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                                    </svg>
+                                                </button>
+                                                {/* Message Icon */}
+                                                <button 
+                                                    className="w-5 h-5 rounded flex items-center justify-center hover:bg-blue-100 text-blue-500 transition-colors"
+                                                    title="Chat"
+                                                    onClick={(e) => { e.stopPropagation(); openDrawer(r, "chat"); }}
+                                                >
+                                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                                                        <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                                    </svg>
+                                                </button>
+                                                {/* Share Icon */}
+                                                <button 
+                                                    className="w-5 h-5 rounded flex items-center justify-center hover:bg-green-100 text-green-500 transition-colors"
+                                                    title="Share"
+                                                    onClick={(e) => { e.stopPropagation(); setShareModalPatient(r); setShareModalOpen(true); }}
+                                                >
+                                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                                                        <path d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -481,6 +615,581 @@ export default function CarePlanPage() {
 
                         {/* DETAIL PANE */}
                         <section id="detailPane" className="flex-1 min-w-[420px] bg-white flex flex-col">
+                            {showTenantSetup ? (
+                                <TenantSetup onClose={() => setShowTenantSetup(false)} />
+                            ) : showDataReporting ? (
+                                <DataReporting onClose={() => setShowDataReporting(false)} />
+                            ) : showMasterTables ? (
+                                <MasterTables onClose={() => setShowMasterTables(false)} />
+                            ) : showEmailTemplates ? (
+                                <EmailTemplates onClose={() => setShowEmailTemplates(false)} />
+                            ) : showScheduling ? (
+                                <Scheduling onClose={() => setShowScheduling(false)} />
+                            ) : showUserManagement ? (
+                                <UserManagement onClose={() => setShowUserManagement(false)} />
+                            ) : showDashboardPanel ? (
+                                <NewDashboard onClose={() => setShowDashboardPanel(false)} />
+                            ) : selectedPatient ? (
+                                /* Patient Detail View */
+                                <div className="flex flex-col h-full">
+                                    {/* Patient Header */}
+                                    <div className="px-5 py-4 border-b border-neutral-200 bg-white">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-12 h-12 rounded-full bg-green-500 text-white text-lg font-semibold flex items-center justify-center">
+                                                    {selectedPatient.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'PT'}
+                                                </div>
+                                                <div>
+                                                    <h2 className="text-lg font-semibold text-neutral-900">{selectedPatient.name}</h2>
+                                                    <p className="text-sm text-neutral-500">ID: {selectedPatient.id} • Care Manager: {selectedPatient.careMgr}</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <button className="h-9 px-3 rounded-lg border border-neutral-300 text-sm hover:bg-neutral-50 flex items-center gap-2">
+                                                    Patient Info
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                                                        <path d="M19 9l-7 7-7-7" />
+                                                    </svg>
+                                                </button>
+                                                <button 
+                                                    onClick={() => setSelectedPatient(null)}
+                                                    className="h-9 w-9 rounded-lg hover:bg-neutral-100 flex items-center justify-center"
+                                                >
+                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                                                        <path d="M6 18L18 6M6 6l12 12" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Patient Tabs */}
+                                    <div className="border-b border-neutral-200 bg-white">
+                                        <div className="flex gap-1 px-5 overflow-x-auto">
+                                            {['Overview', 'Medications', 'Appointments', 'Care Plan', 'Vitals', 'Documents', 'Billing', 'History'].map((tab) => (
+                                                <button
+                                                    key={tab}
+                                                    onClick={() => setPatientDetailTab(tab.toLowerCase().replace(' ', '-'))}
+                                                    className={`px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+                                                        patientDetailTab === tab.toLowerCase().replace(' ', '-')
+                                                            ? 'text-blue-600 border-blue-600'
+                                                            : 'text-neutral-600 border-transparent hover:text-neutral-900 hover:border-neutral-300'
+                                                    }`}
+                                                >
+                                                    {tab}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Timeline Slider */}
+                                    <div className="px-5 py-2 bg-white border-b border-neutral-200 flex items-center gap-2">
+                                        <button className="w-6 h-6 flex items-center justify-center text-neutral-400 hover:text-neutral-600">
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                                <path d="M15 19l-7-7 7-7" />
+                                            </svg>
+                                        </button>
+                                        <div className="flex-1 relative">
+                                            <div className="h-1.5 bg-neutral-200 rounded-full">
+                                                <div className="h-full w-1/3 bg-neutral-400 rounded-full"></div>
+                                            </div>
+                                            <div className="absolute left-1/3 top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 bg-neutral-600 rounded-full border-2 border-white shadow cursor-pointer"></div>
+                                        </div>
+                                        <button className="w-6 h-6 flex items-center justify-center text-neutral-400 hover:text-neutral-600">
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                                <path d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        </button>
+                                    </div>
+
+                                    {/* Search and Filters */}
+                                    <div className="px-5 py-3 border-b border-neutral-200 bg-white flex items-center gap-3">
+                                        <div className="relative flex-1 max-w-md">
+                                            <svg className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                                <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                            </svg>
+                                            <input 
+                                                type="text" 
+                                                placeholder="Search in current tab..." 
+                                                className="w-full h-9 pl-10 pr-3 rounded-lg border border-neutral-300 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            />
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <select className="h-9 px-3 rounded-lg border border-neutral-300 text-sm">
+                                                <option>This Month</option>
+                                                <option>This Week</option>
+                                                <option>Today</option>
+                                                <option>All Time</option>
+                                            </select>
+                                            <select className="h-9 px-3 rounded-lg border border-neutral-300 text-sm">
+                                                <option>All Status</option>
+                                                <option>Active</option>
+                                                <option>Pending</option>
+                                                <option>Completed</option>
+                                            </select>
+                                            <select className="h-9 px-3 rounded-lg border border-neutral-300 text-sm">
+                                                <option>Newest First</option>
+                                                <option>Oldest First</option>
+                                            </select>
+                                            <button className="h-9 px-3 rounded-lg border border-neutral-300 text-sm hover:bg-neutral-50 flex items-center gap-1">
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                                    <path d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                                Clear
+                                            </button>
+                                            <button className="h-9 px-4 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700 flex items-center gap-2">
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                                    <path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                </svg>
+                                                Export
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Patient Content */}
+                                    <div className="flex-1 overflow-y-auto p-5 bg-neutral-50">
+                                        {/* Overview Tab */}
+                                        {patientDetailTab === 'overview' && (
+                                            <>
+                                                <h3 className="text-lg font-semibold text-neutral-900 mb-4">Patient Overview</h3>
+                                                <div className="bg-white rounded-xl border border-neutral-200 p-4 mb-4">
+                                                    <h4 className="text-sm font-semibold text-neutral-900 mb-3">Recent Activity</h4>
+                                                    <p className="text-sm text-neutral-500">No recent activity recorded.</p>
+                                                </div>
+                                                <div className="bg-white rounded-xl border border-neutral-200 p-4">
+                                                    <h4 className="text-sm font-semibold text-neutral-900 mb-4">Quick Stats</h4>
+                                                    <div className="grid grid-cols-3 gap-6">
+                                                        <div>
+                                                            <div className="text-3xl font-bold text-blue-600">0</div>
+                                                            <div className="text-sm text-neutral-500">Appointments</div>
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-3xl font-bold text-green-600">0</div>
+                                                            <div className="text-sm text-neutral-500">Medications</div>
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-3xl font-bold text-purple-600">0</div>
+                                                            <div className="text-sm text-neutral-500">Documents</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </>
+                                        )}
+
+                                        {/* Medications Tab */}
+                                        {patientDetailTab === 'medications' && (
+                                            <>
+                                                <h3 className="text-lg font-semibold text-neutral-900 mb-4">Medications</h3>
+                                                <div className="bg-white rounded-xl border border-neutral-200 p-4 mb-4">
+                                                    <div className="flex items-center justify-between mb-4">
+                                                        <h4 className="text-sm font-semibold text-neutral-900">Current Medications</h4>
+                                                        <button className="h-8 px-3 rounded-lg bg-blue-600 text-white text-xs hover:bg-blue-700">+ Add Medication</button>
+                                                    </div>
+                                                    <div className="space-y-3">
+                                                        <div className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg">
+                                                            <div>
+                                                                <div className="text-sm font-medium text-neutral-900">Lisinopril 10mg</div>
+                                                                <div className="text-xs text-neutral-500">Once daily • Started: Jan 15, 2025</div>
+                                                            </div>
+                                                            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">Active</span>
+                                                        </div>
+                                                        <div className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg">
+                                                            <div>
+                                                                <div className="text-sm font-medium text-neutral-900">Metformin 500mg</div>
+                                                                <div className="text-xs text-neutral-500">Twice daily • Started: Feb 20, 2025</div>
+                                                            </div>
+                                                            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">Active</span>
+                                                        </div>
+                                                        <div className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg">
+                                                            <div>
+                                                                <div className="text-sm font-medium text-neutral-900">Aspirin 81mg</div>
+                                                                <div className="text-xs text-neutral-500">Once daily • Started: Mar 10, 2025</div>
+                                                            </div>
+                                                            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">Active</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="bg-white rounded-xl border border-neutral-200 p-4">
+                                                    <h4 className="text-sm font-semibold text-neutral-900 mb-3">Medication History</h4>
+                                                    <p className="text-sm text-neutral-500">No discontinued medications.</p>
+                                                </div>
+                                            </>
+                                        )}
+
+                                        {/* Appointments Tab */}
+                                        {patientDetailTab === 'appointments' && (
+                                            <>
+                                                <h3 className="text-lg font-semibold text-neutral-900 mb-4">Appointments</h3>
+                                                <div className="bg-white rounded-xl border border-neutral-200 p-4 mb-4">
+                                                    <div className="flex items-center justify-between mb-4">
+                                                        <h4 className="text-sm font-semibold text-neutral-900">Upcoming Appointments</h4>
+                                                        <button className="h-8 px-3 rounded-lg bg-blue-600 text-white text-xs hover:bg-blue-700">+ Schedule</button>
+                                                    </div>
+                                                    <div className="space-y-3">
+                                                        <div className="flex items-center gap-4 p-3 bg-neutral-50 rounded-lg">
+                                                            <div className="w-12 h-12 bg-blue-100 rounded-lg flex flex-col items-center justify-center">
+                                                                <span className="text-xs font-bold text-blue-600">DEC</span>
+                                                                <span className="text-lg font-bold text-blue-600">15</span>
+                                                            </div>
+                                                            <div className="flex-1">
+                                                                <div className="text-sm font-medium text-neutral-900">Follow-up Visit</div>
+                                                                <div className="text-xs text-neutral-500">10:00 AM • Dr. Smith • Cardiology</div>
+                                                            </div>
+                                                            <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">Confirmed</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-4 p-3 bg-neutral-50 rounded-lg">
+                                                            <div className="w-12 h-12 bg-purple-100 rounded-lg flex flex-col items-center justify-center">
+                                                                <span className="text-xs font-bold text-purple-600">DEC</span>
+                                                                <span className="text-lg font-bold text-purple-600">22</span>
+                                                            </div>
+                                                            <div className="flex-1">
+                                                                <div className="text-sm font-medium text-neutral-900">Lab Work</div>
+                                                                <div className="text-xs text-neutral-500">9:00 AM • Quest Diagnostics</div>
+                                                            </div>
+                                                            <span className="px-2 py-1 bg-amber-100 text-amber-700 text-xs rounded-full">Pending</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="bg-white rounded-xl border border-neutral-200 p-4">
+                                                    <h4 className="text-sm font-semibold text-neutral-900 mb-3">Past Appointments</h4>
+                                                    <div className="text-sm text-neutral-500">3 appointments in the last 30 days</div>
+                                                </div>
+                                            </>
+                                        )}
+
+                                        {/* Care Plan Tab */}
+                                        {patientDetailTab === 'care-plan' && (
+                                            <>
+                                                <h3 className="text-lg font-semibold text-neutral-900 mb-4">Care Plan</h3>
+                                                <div className="bg-white rounded-xl border border-neutral-200 p-4 mb-4">
+                                                    <div className="flex items-center justify-between mb-4">
+                                                        <h4 className="text-sm font-semibold text-neutral-900">Active Goals</h4>
+                                                        <button className="h-8 px-3 rounded-lg bg-blue-600 text-white text-xs hover:bg-blue-700">+ Add Goal</button>
+                                                    </div>
+                                                    <div className="space-y-3">
+                                                        <div className="p-3 bg-neutral-50 rounded-lg">
+                                                            <div className="flex items-center justify-between mb-2">
+                                                                <div className="text-sm font-medium text-neutral-900">Blood Pressure Control</div>
+                                                                <span className="text-xs text-green-600 font-medium">75% Complete</span>
+                                                            </div>
+                                                            <div className="w-full bg-neutral-200 rounded-full h-2">
+                                                                <div className="bg-green-500 h-2 rounded-full" style={{width: '75%'}}></div>
+                                                            </div>
+                                                            <div className="text-xs text-neutral-500 mt-2">Target: &lt;130/80 mmHg</div>
+                                                        </div>
+                                                        <div className="p-3 bg-neutral-50 rounded-lg">
+                                                            <div className="flex items-center justify-between mb-2">
+                                                                <div className="text-sm font-medium text-neutral-900">Weight Management</div>
+                                                                <span className="text-xs text-amber-600 font-medium">40% Complete</span>
+                                                            </div>
+                                                            <div className="w-full bg-neutral-200 rounded-full h-2">
+                                                                <div className="bg-amber-500 h-2 rounded-full" style={{width: '40%'}}></div>
+                                                            </div>
+                                                            <div className="text-xs text-neutral-500 mt-2">Target: Lose 10 lbs</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="bg-white rounded-xl border border-neutral-200 p-4">
+                                                    <h4 className="text-sm font-semibold text-neutral-900 mb-3">Care Team Notes</h4>
+                                                    <p className="text-sm text-neutral-500">Patient is making good progress. Continue current treatment plan.</p>
+                                                </div>
+                                            </>
+                                        )}
+
+                                        {/* Vitals Tab */}
+                                        {patientDetailTab === 'vitals' && (
+                                            <>
+                                                <h3 className="text-lg font-semibold text-neutral-900 mb-4">Vitals</h3>
+                                                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                                                    <div className="bg-white rounded-xl border border-neutral-200 p-4">
+                                                        <div className="text-xs text-neutral-500 mb-1">Blood Pressure</div>
+                                                        <div className="text-2xl font-bold text-neutral-900">128/82</div>
+                                                        <div className="text-xs text-green-600">Normal</div>
+                                                    </div>
+                                                    <div className="bg-white rounded-xl border border-neutral-200 p-4">
+                                                        <div className="text-xs text-neutral-500 mb-1">Heart Rate</div>
+                                                        <div className="text-2xl font-bold text-neutral-900">72 bpm</div>
+                                                        <div className="text-xs text-green-600">Normal</div>
+                                                    </div>
+                                                    <div className="bg-white rounded-xl border border-neutral-200 p-4">
+                                                        <div className="text-xs text-neutral-500 mb-1">Temperature</div>
+                                                        <div className="text-2xl font-bold text-neutral-900">98.6°F</div>
+                                                        <div className="text-xs text-green-600">Normal</div>
+                                                    </div>
+                                                    <div className="bg-white rounded-xl border border-neutral-200 p-4">
+                                                        <div className="text-xs text-neutral-500 mb-1">Weight</div>
+                                                        <div className="text-2xl font-bold text-neutral-900">165 lbs</div>
+                                                        <div className="text-xs text-amber-600">+2 lbs from last visit</div>
+                                                    </div>
+                                                </div>
+                                                <div className="bg-white rounded-xl border border-neutral-200 p-4">
+                                                    <h4 className="text-sm font-semibold text-neutral-900 mb-3">Vitals History</h4>
+                                                    <div className="h-40 flex items-center justify-center text-neutral-400 text-sm">Chart placeholder - Vitals trend over time</div>
+                                                </div>
+                                            </>
+                                        )}
+
+                                        {/* Documents Tab */}
+                                        {patientDetailTab === 'documents' && (
+                                            <>
+                                                <h3 className="text-lg font-semibold text-neutral-900 mb-4">Documents</h3>
+                                                <div className="bg-white rounded-xl border border-neutral-200 p-4">
+                                                    <div className="flex items-center justify-between mb-4">
+                                                        <h4 className="text-sm font-semibold text-neutral-900">Patient Documents</h4>
+                                                        <button className="h-8 px-3 rounded-lg bg-blue-600 text-white text-xs hover:bg-blue-700">+ Upload</button>
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <div className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 cursor-pointer">
+                                                            <div className="flex items-center gap-3">
+                                                                <svg className="w-8 h-8 text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 2l5 5h-5V4zm-3 9v6h2v-6h2l-3-3-3 3h2z"/></svg>
+                                                                <div>
+                                                                    <div className="text-sm font-medium text-neutral-900">Lab Results - Dec 2025.pdf</div>
+                                                                    <div className="text-xs text-neutral-500">Uploaded Dec 10, 2025 • 245 KB</div>
+                                                                </div>
+                                                            </div>
+                                                            <button className="text-blue-600 text-xs hover:underline">Download</button>
+                                                        </div>
+                                                        <div className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 cursor-pointer">
+                                                            <div className="flex items-center gap-3">
+                                                                <svg className="w-8 h-8 text-blue-500" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 2l5 5h-5V4zM8 12h8v2H8v-2zm0 4h8v2H8v-2z"/></svg>
+                                                                <div>
+                                                                    <div className="text-sm font-medium text-neutral-900">Insurance Card.png</div>
+                                                                    <div className="text-xs text-neutral-500">Uploaded Nov 15, 2025 • 1.2 MB</div>
+                                                                </div>
+                                                            </div>
+                                                            <button className="text-blue-600 text-xs hover:underline">Download</button>
+                                                        </div>
+                                                        <div className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 cursor-pointer">
+                                                            <div className="flex items-center gap-3">
+                                                                <svg className="w-8 h-8 text-green-500" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 2l5 5h-5V4zM8 12h8v2H8v-2zm0 4h5v2H8v-2z"/></svg>
+                                                                <div>
+                                                                    <div className="text-sm font-medium text-neutral-900">Consent Form.docx</div>
+                                                                    <div className="text-xs text-neutral-500">Uploaded Oct 20, 2025 • 89 KB</div>
+                                                                </div>
+                                                            </div>
+                                                            <button className="text-blue-600 text-xs hover:underline">Download</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </>
+                                        )}
+
+                                        {/* Billing Tab */}
+                                        {patientDetailTab === 'billing' && (
+                                            <>
+                                                <h3 className="text-lg font-semibold text-neutral-900 mb-4">Billing</h3>
+                                                <div className="grid grid-cols-3 gap-4 mb-4">
+                                                    <div className="bg-white rounded-xl border border-neutral-200 p-4">
+                                                        <div className="text-xs text-neutral-500 mb-1">Total Balance</div>
+                                                        <div className="text-2xl font-bold text-neutral-900">$245.00</div>
+                                                    </div>
+                                                    <div className="bg-white rounded-xl border border-neutral-200 p-4">
+                                                        <div className="text-xs text-neutral-500 mb-1">Insurance</div>
+                                                        <div className="text-2xl font-bold text-green-600">Active</div>
+                                                    </div>
+                                                    <div className="bg-white rounded-xl border border-neutral-200 p-4">
+                                                        <div className="text-xs text-neutral-500 mb-1">Last Payment</div>
+                                                        <div className="text-2xl font-bold text-neutral-900">$50.00</div>
+                                                    </div>
+                                                </div>
+                                                <div className="bg-white rounded-xl border border-neutral-200 p-4">
+                                                    <div className="flex items-center justify-between mb-4">
+                                                        <h4 className="text-sm font-semibold text-neutral-900">Recent Invoices</h4>
+                                                        <button className="h-8 px-3 rounded-lg bg-green-600 text-white text-xs hover:bg-green-700">Make Payment</button>
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <div className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg">
+                                                            <div>
+                                                                <div className="text-sm font-medium text-neutral-900">INV-2025-0042</div>
+                                                                <div className="text-xs text-neutral-500">Dec 5, 2025 • Office Visit</div>
+                                                            </div>
+                                                            <div className="text-right">
+                                                                <div className="text-sm font-medium text-neutral-900">$125.00</div>
+                                                                <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded-full">Pending</span>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg">
+                                                            <div>
+                                                                <div className="text-sm font-medium text-neutral-900">INV-2025-0038</div>
+                                                                <div className="text-xs text-neutral-500">Nov 20, 2025 • Lab Work</div>
+                                                            </div>
+                                                            <div className="text-right">
+                                                                <div className="text-sm font-medium text-neutral-900">$120.00</div>
+                                                                <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded-full">Pending</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </>
+                                        )}
+
+                                        {/* History Tab */}
+                                        {patientDetailTab === 'history' && (
+                                            <>
+                                                <h3 className="text-lg font-semibold text-neutral-900 mb-4">Patient History</h3>
+                                                <div className="bg-white rounded-xl border border-neutral-200 p-4 mb-4">
+                                                    <h4 className="text-sm font-semibold text-neutral-900 mb-4">Timeline</h4>
+                                                    <div className="space-y-4">
+                                                        <div className="flex gap-3">
+                                                            <div className="w-2 h-2 mt-2 bg-blue-500 rounded-full"></div>
+                                                            <div>
+                                                                <div className="text-sm font-medium text-neutral-900">Office Visit</div>
+                                                                <div className="text-xs text-neutral-500">Dec 5, 2025 • Dr. Smith</div>
+                                                                <div className="text-xs text-neutral-600 mt-1">Routine follow-up. Blood pressure stable.</div>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex gap-3">
+                                                            <div className="w-2 h-2 mt-2 bg-green-500 rounded-full"></div>
+                                                            <div>
+                                                                <div className="text-sm font-medium text-neutral-900">Lab Results Received</div>
+                                                                <div className="text-xs text-neutral-500">Nov 25, 2025</div>
+                                                                <div className="text-xs text-neutral-600 mt-1">All values within normal range.</div>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex gap-3">
+                                                            <div className="w-2 h-2 mt-2 bg-purple-500 rounded-full"></div>
+                                                            <div>
+                                                                <div className="text-sm font-medium text-neutral-900">Medication Started</div>
+                                                                <div className="text-xs text-neutral-500">Nov 20, 2025</div>
+                                                                <div className="text-xs text-neutral-600 mt-1">Started Lisinopril 10mg daily.</div>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex gap-3">
+                                                            <div className="w-2 h-2 mt-2 bg-amber-500 rounded-full"></div>
+                                                            <div>
+                                                                <div className="text-sm font-medium text-neutral-900">Initial Consultation</div>
+                                                                <div className="text-xs text-neutral-500">Nov 15, 2025 • Dr. Smith</div>
+                                                                <div className="text-xs text-neutral-600 mt-1">Patient enrolled in care management program.</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="bg-white rounded-xl border border-neutral-200 p-4">
+                                                    <h4 className="text-sm font-semibold text-neutral-900 mb-3">Medical History Summary</h4>
+                                                    <div className="grid grid-cols-2 gap-4 text-sm">
+                                                        <div>
+                                                            <div className="text-neutral-500">Conditions</div>
+                                                            <div className="text-neutral-900">Hypertension, Type 2 Diabetes</div>
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-neutral-500">Allergies</div>
+                                                            <div className="text-neutral-900">Penicillin</div>
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-neutral-500">Surgeries</div>
+                                                            <div className="text-neutral-900">Appendectomy (2018)</div>
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-neutral-500">Family History</div>
+                                                            <div className="text-neutral-900">Heart disease (father)</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+
+                                    {/* Patient Detail Bottom Toolbar */}
+                                    <div className="h-12 px-4 border-t border-neutral-200 bg-white flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            {/* Grid/List Toggle */}
+                                            <div className="inline-flex rounded-lg border border-neutral-300 overflow-hidden">
+                                                <button className="px-3 h-8 text-sm bg-neutral-900 text-white">Grid</button>
+                                                <button className="px-3 h-8 text-sm hover:bg-neutral-50">List</button>
+                                            </div>
+
+                                            {/* Icon buttons */}
+                                            <button className="h-8 w-8 rounded-lg border border-neutral-300 hover:bg-neutral-50 flex items-center justify-center">
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h6" /></svg>
+                                            </button>
+                                            <button className="h-8 w-8 rounded-lg border border-neutral-300 hover:bg-neutral-50 flex items-center justify-center">
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M5 5h14v14H5z" /><path d="M9 5v6l3-2 3 2V5" /></svg>
+                                            </button>
+
+                                            {/* Options */}
+                                            <button className="h-8 px-3 rounded-lg border border-neutral-300 text-sm hover:bg-neutral-50 flex items-center gap-2">
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M8 12h8M12 8v8" /></svg>
+                                                Options
+                                            </button>
+
+                                            {/* Clear */}
+                                            <button className="h-8 px-3 rounded-lg border border-neutral-300 text-sm hover:bg-neutral-50">
+                                                Clear
+                                            </button>
+
+                                            {/* Refresh */}
+                                            <button className="h-8 w-8 rounded-lg border border-neutral-300 hover:bg-neutral-50 flex items-center justify-center">
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                                            </button>
+                                        </div>
+
+                                        <div className="flex items-center gap-2">
+                                            {/* Add */}
+                                            <button className="h-8 px-4 rounded-lg bg-green-600 text-white text-sm hover:bg-green-700">Add</button>
+
+                                            {/* Delete */}
+                                            <button className="h-8 px-3 rounded-lg border border-neutral-300 text-sm hover:bg-neutral-50">Delete</button>
+
+                                            {/* Clone */}
+                                            <button className="h-8 px-3 rounded-lg border border-neutral-300 text-sm hover:bg-neutral-50">Clone</button>
+
+                                            {/* More options */}
+                                            <button className="h-8 w-8 rounded-lg border border-neutral-300 hover:bg-neutral-50 flex items-center justify-center">
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="19" cy="12" r="1.5" /></svg>
+                                            </button>
+
+                                            {/* Filter */}
+                                            <button className="h-8 w-8 rounded-lg border border-neutral-300 hover:bg-neutral-50 flex items-center justify-center">
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M3 5h18M6 10h12M10 15h4" /></svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : null}
+                            {false && showDashboardPanel ? (
+                                <div id="dashboardView" className="flex flex-col h-full">
+                                    <div className="h-14 px-4 border-b border-neutral-200 flex items-center justify-between bg-gradient-to-r from-indigo-50 to-white">
+                                        <div className="flex items-center gap-3">
+                                            <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                                            <div>
+                                                <h2 className="text-base font-semibold text-neutral-900">XYZ Plan Dashboard</h2>
+                                                <p className="text-xs text-neutral-500">Real-time insights and analytics</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <button className="h-8 px-3 rounded-lg border border-neutral-300 text-xs hover:bg-neutral-50 flex items-center gap-1">
+                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                                Export
+                                            </button>
+                                            <button className="h-8 w-8 rounded-lg hover:bg-neutral-100" onClick={() => setShowDashboardPanel(false)}>
+                                                <svg className="w-4 h-4 mx-auto" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex-1 overflow-y-auto p-6 bg-neutral-50">
+                                        <div id="dashOverview" className="dash-content">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                                                <div className="bg-white rounded-lg border border-neutral-200 p-4 shadow-sm">
+                                                    <div className="flex items-center justify-between mb-2">
+                                                        <div className="text-xs font-semibold text-neutral-600">Total Patients</div>
+                                                        <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                                                            <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-2xl font-bold text-neutral-900">1,248</div>
+                                                    <div className="flex items-center gap-1 mt-1">
+                                                        <span className="text-xs text-green-600 font-medium">↑ 12%</span>
+                                                        <span className="text-xs text-neutral-500">vs last month</span>
+                                                    </div>
+                                                </div>
+                                                <div className="bg-white rounded-lg border border-neutral-200 p-5 shadow-sm">Patient Enrollment Trend (chart placeholder)</div>
+                                                <div className="bg-white rounded-lg border border-neutral-200 p-5 shadow-sm">Patient Risk Distribution (chart placeholder)</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : null}
                             <div className="h-12 px-3 lg:px-4 border-b border-neutral-200 flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <div className="inline-flex rounded-lg border border-neutral-300 overflow-hidden">
@@ -738,6 +1447,327 @@ export default function CarePlanPage() {
                 </div >
             </div >
 
+            {/* Share Modal */}
+            {shareModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl">
+                        {/* Modal Header */}
+                        <div className="bg-gradient-to-r from-purple-600 to-blue-600 px-5 py-3 flex items-center justify-between rounded-t-xl">
+                            <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                        <path d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 className="text-white text-base font-semibold">Share Patient Profile</h3>
+                                    <p className="text-purple-100 text-xs">{shareModalPatient?.name || 'Patient Name'} • ID: {shareModalPatient?.id || ''}</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setShareModalOpen(false)}
+                                className="text-white hover:bg-white hover:bg-opacity-20 rounded-lg p-1.5 transition-colors"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                    <path d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        {/* Modal Content - Two Column Layout */}
+                        <div className="p-5">
+                            <div className="grid grid-cols-5 gap-5">
+                                {/* Left Column: Patient Info */}
+                                <div className="col-span-2 space-y-4">
+                                    {/* Patient Card */}
+                                    <div className="bg-neutral-50 rounded-xl p-4">
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <div className="w-12 h-12 rounded-full bg-green-500 text-white text-lg font-semibold flex items-center justify-center">
+                                                {shareModalPatient?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'PT'}
+                                            </div>
+                                            <div>
+                                                <div className="font-semibold text-neutral-900">{shareModalPatient?.name || 'Patient Name'}</div>
+                                                <div className="text-xs text-neutral-500">#{shareModalPatient?.id || ''}</div>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2 text-sm">
+                                            <div className="flex justify-between">
+                                                <span className="text-neutral-500">Age:</span>
+                                                <span className="font-medium text-neutral-900">{shareModalPatient?.age || '-'}</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span className="text-neutral-500">Risk:</span>
+                                                <span className="font-medium text-neutral-900">{shareModalPatient?.risk || '-'}</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span className="text-neutral-500">Status:</span>
+                                                <span className="font-medium text-neutral-900">{shareModalPatient?.status || '-'}</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span className="text-neutral-500">Care Mgr:</span>
+                                                <span className="font-medium text-neutral-900">{shareModalPatient?.careMgr || '-'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* HIPAA Notice */}
+                                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+                                        <div className="flex items-start gap-2">
+                                            <svg className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                                <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                            </svg>
+                                            <div>
+                                                <div className="text-sm font-semibold text-amber-700">HIPAA Notice</div>
+                                                <div className="text-xs text-amber-600">Share only with authorized personnel. Contains PHI.</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Right Column: Share Options */}
+                                <div className="col-span-3 space-y-4">
+                                    {/* Shareable Link */}
+                                    <div>
+                                        <label className="block text-sm font-semibold text-neutral-900 mb-2">Shareable Link</label>
+                                        <div className="flex gap-2">
+                                            <input 
+                                                type="text" 
+                                                readOnly
+                                                value={`${window.location.origin}/patient/${shareModalPatient?.id || ''}`}
+                                                className="flex-1 h-10 px-3 rounded-lg border border-neutral-300 bg-neutral-50 text-xs font-mono text-neutral-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            />
+                                            <button 
+                                                onClick={() => {
+                                                    navigator.clipboard.writeText(`${window.location.origin}/patient/${shareModalPatient?.id || ''}`);
+                                                    alert('Link copied to clipboard!');
+                                                }}
+                                                className="h-10 px-4 rounded-lg bg-blue-600 text-white hover:bg-blue-700 text-sm font-medium flex items-center gap-2 transition-colors whitespace-nowrap"
+                                            >
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                                    <path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                                </svg>
+                                                Copy
+                                            </button>
+                                        </div>
+                                        <p className="text-xs text-green-600 mt-2 flex items-center gap-1.5 font-medium">
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                                <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                            </svg>
+                                            Secure link for authorized personnel only
+                                        </p>
+                                    </div>
+
+                                    {/* Quick Share Options */}
+                                    <div>
+                                        <label className="block text-sm font-semibold text-neutral-900 mb-2">Quick Share Options</label>
+                                        <div className="grid grid-cols-4 gap-3">
+                                            <button 
+                                                onClick={() => alert('Share via Email')}
+                                                className="h-20 rounded-xl border border-neutral-200 hover:border-blue-400 hover:bg-blue-50 font-medium flex flex-col items-center justify-center gap-2 transition-all group bg-white"
+                                            >
+                                                <svg className="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                                                    <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                                </svg>
+                                                <span className="text-xs text-neutral-600 group-hover:text-blue-700">Email</span>
+                                            </button>
+                                            <button 
+                                                onClick={() => alert('Share via Teams')}
+                                                className="h-20 rounded-xl border border-neutral-200 hover:border-indigo-400 hover:bg-indigo-50 font-medium flex flex-col items-center justify-center gap-2 transition-all group bg-white"
+                                            >
+                                                <svg className="w-7 h-7 text-indigo-600" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                                                    <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                </svg>
+                                                <span className="text-xs text-neutral-600 group-hover:text-indigo-700">Teams</span>
+                                            </button>
+                                            <button 
+                                                onClick={() => alert('Share via Slack')}
+                                                className="h-20 rounded-xl border border-neutral-200 hover:border-green-400 hover:bg-green-50 font-medium flex flex-col items-center justify-center gap-2 transition-all group bg-white"
+                                            >
+                                                <svg className="w-7 h-7 text-green-600" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                                                    <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                                </svg>
+                                                <span className="text-xs text-neutral-600 group-hover:text-green-700">Slack</span>
+                                            </button>
+                                            <button 
+                                                onClick={() => alert('Generate QR Code')}
+                                                className="h-20 rounded-xl border border-neutral-200 hover:border-purple-400 hover:bg-purple-50 font-medium flex flex-col items-center justify-center gap-2 transition-all group bg-white"
+                                            >
+                                                <svg className="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                                                    <path d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                                                </svg>
+                                                <span className="text-xs text-neutral-600 group-hover:text-purple-700">QR Code</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="px-5 py-3 bg-neutral-50 border-t border-neutral-200 flex items-center justify-end gap-2 rounded-b-xl">
+                            <button
+                                type="button"
+                                onClick={() => setShareModalOpen(false)}
+                                className="px-6 py-2 text-sm text-neutral-700 bg-white border border-neutral-300 hover:bg-neutral-100 rounded-lg font-medium transition-colors"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Task Creation Modal */}
+            {taskModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl">
+                        {/* Modal Header */}
+                        <div className="bg-gradient-to-r from-purple-600 to-indigo-600 px-5 py-3 flex items-center justify-between rounded-t-xl">
+                            <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 className="text-white text-base font-semibold">Create Care Task</h3>
+                                    <p className="text-purple-100 text-xs">{taskModalPatient?.name || 'Patient Name'}</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setTaskModalOpen(false)}
+                                className="text-white hover:bg-white hover:bg-opacity-20 rounded-lg p-1.5 transition-colors"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                    <path d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        {/* Modal Content */}
+                        <div className="p-5">
+                            <form id="taskForm" className="space-y-3">
+                                {/* Row 1: Task Title & Type & Priority */}
+                                <div className="grid grid-cols-12 gap-3">
+                                    <div className="col-span-6">
+                                        <input type="text" id="taskTitle" required
+                                            className="w-full px-3 py-2 text-sm border border-neutral-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                            placeholder="Task Title *" />
+                                    </div>
+                                    <div className="col-span-3">
+                                        <select id="taskType" required
+                                            className="w-full px-3 py-2 text-sm border border-neutral-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                            <option value="">Task Type *</option>
+                                            <option value="assessment">Assessment</option>
+                                            <option value="medication">Medication Review</option>
+                                            <option value="followup">Follow-up</option>
+                                            <option value="coordination">Care Coordination</option>
+                                            <option value="documentation">Documentation</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                    <div className="col-span-3">
+                                        <select id="taskPriority" required
+                                            className="w-full px-3 py-2 text-sm border border-neutral-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                            <option value="">Priority *</option>
+                                            <option value="low">Low</option>
+                                            <option value="medium">Medium</option>
+                                            <option value="high">High</option>
+                                            <option value="urgent">Urgent</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                {/* Row 2: Description & Due Date & Assign To */}
+                                <div className="grid grid-cols-12 gap-3">
+                                    <div className="col-span-6">
+                                        <textarea id="taskDescription" required rows="3"
+                                            className="w-full px-3 py-2 text-sm border border-neutral-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                                            placeholder="Description *"></textarea>
+                                    </div>
+                                    <div className="col-span-3">
+                                        <input type="date" id="taskDueDate" required
+                                            className="w-full px-3 py-2 text-sm border border-neutral-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" />
+                                    </div>
+                                    <div className="col-span-3">
+                                        <select id="taskAssignee" required
+                                            className="w-full px-3 py-2 text-sm border border-neutral-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                            <option value="">Assign To *</option>
+                                            <option value="nurse1">RN Sarah Johnson</option>
+                                            <option value="nurse2">RN Michael Chen</option>
+                                            <option value="doctor1">Dr. Emily Roberts</option>
+                                            <option value="manager1">Care Manager - Jane Smith</option>
+                                            <option value="coordinator1">Care Coordinator - Tom Wilson</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                {/* Row 3: Care Categories */}
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xs text-neutral-600 font-medium whitespace-nowrap">Care Categories:</span>
+                                    <div className="flex flex-wrap gap-2">
+                                        <label className="flex items-center px-2.5 py-1.5 bg-neutral-50 border border-neutral-300 rounded-lg cursor-pointer hover:bg-purple-50 hover:border-purple-300 transition-colors">
+                                            <input type="checkbox" value="adl" className="mr-1.5 text-purple-600" />
+                                            <span className="text-xs">ADL Support</span>
+                                        </label>
+                                        <label className="flex items-center px-2.5 py-1.5 bg-neutral-50 border border-neutral-300 rounded-lg cursor-pointer hover:bg-purple-50 hover:border-purple-300 transition-colors">
+                                            <input type="checkbox" value="medication" className="mr-1.5 text-purple-600" />
+                                            <span className="text-xs">Medication</span>
+                                        </label>
+                                        <label className="flex items-center px-2.5 py-1.5 bg-neutral-50 border border-neutral-300 rounded-lg cursor-pointer hover:bg-purple-50 hover:border-purple-300 transition-colors">
+                                            <input type="checkbox" value="mobility" className="mr-1.5 text-purple-600" />
+                                            <span className="text-xs">Mobility</span>
+                                        </label>
+                                        <label className="flex items-center px-2.5 py-1.5 bg-neutral-50 border border-neutral-300 rounded-lg cursor-pointer hover:bg-purple-50 hover:border-purple-300 transition-colors">
+                                            <input type="checkbox" value="nutrition" className="mr-1.5 text-purple-600" />
+                                            <span className="text-xs">Nutrition</span>
+                                        </label>
+                                        <label className="flex items-center px-2.5 py-1.5 bg-neutral-50 border border-neutral-300 rounded-lg cursor-pointer hover:bg-purple-50 hover:border-purple-300 transition-colors">
+                                            <input type="checkbox" value="social" className="mr-1.5 text-purple-600" />
+                                            <span className="text-xs">Social/Emotional</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                {/* Row 4: Notes */}
+                                <div>
+                                    <textarea id="taskNotes" rows="2"
+                                        className="w-full px-3 py-2 text-sm border border-neutral-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                                        placeholder="Additional Notes (optional)"></textarea>
+                                </div>
+                            </form>
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="px-5 py-3 bg-neutral-50 border-t border-neutral-200 flex items-center justify-end gap-2 rounded-b-xl">
+                            <button
+                                type="button"
+                                onClick={() => setTaskModalOpen(false)}
+                                className="px-5 py-2 text-sm text-neutral-700 hover:bg-neutral-200 rounded-lg font-medium transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    // Handle task creation here
+                                    alert(`Task created for ${taskModalPatient?.name}`);
+                                    setTaskModalOpen(false);
+                                }}
+                                className="px-5 py-2 text-sm bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg font-medium hover:from-purple-700 hover:to-indigo-700 transition-all shadow-lg shadow-purple-500/30"
+                            >
+                                <span className="flex items-center gap-2">
+                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                        <path d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    Create Task
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* TOAST NOTIFICATION */}
             < div
                 id="toastNotify"
@@ -769,10 +1799,12 @@ export default function CarePlanPage() {
                     </button>
                 </div>
 
-                <div className="px-4 py-2 border-b border-neutral-200 flex gap-2">
-                    <button className={`tabBtn px-3 h-8 rounded-lg border text-sm ${activeTab === "call" ? "bg-neutral-900 text-white border-neutral-900" : "border-neutral-300 hover:bg-neutral-50"}`} onClick={() => setActiveTab("call")}>Call</button>
-                    <button className={`tabBtn px-3 h-8 rounded-lg border text-sm ${activeTab === "message" ? "bg-neutral-900 text-white border-neutral-900" : "border-neutral-300 hover:bg-neutral-50"}`} onClick={() => setActiveTab("message")}>Message</button>
-                    <button className={`tabBtn px-3 h-8 rounded-lg border text-sm ${activeTab === "activity" ? "bg-neutral-900 text-white border-neutral-900" : "border-neutral-300 hover:bg-neutral-50"}`} onClick={() => setActiveTab("activity")}>Activity</button>
+                <div className="px-3 py-2 border-b border-neutral-200 flex gap-1.5">
+                    <button className={`tabBtn px-3 h-8 rounded-lg border text-xs font-medium ${activeTab === "call" ? "bg-neutral-900 text-white border-neutral-900" : "border-neutral-300 hover:bg-neutral-50"}`} onClick={() => setActiveTab("call")}>Call</button>
+                    <button className={`tabBtn px-3 h-8 rounded-lg border text-xs font-medium ${activeTab === "message" ? "bg-neutral-900 text-white border-neutral-900" : "border-neutral-300 hover:bg-neutral-50"}`} onClick={() => setActiveTab("message")}>Message</button>
+                    <button className={`tabBtn px-3 h-8 rounded-lg border text-xs font-medium ${activeTab === "chat" ? "bg-neutral-900 text-white border-neutral-900" : "border-neutral-300 hover:bg-neutral-50"}`} onClick={() => setActiveTab("chat")}>Chat</button>
+                    <button className={`tabBtn px-3 h-8 rounded-lg border text-xs font-medium ${activeTab === "action" ? "bg-green-600 text-white border-green-600" : "border-neutral-300 hover:bg-neutral-50"}`} onClick={() => setActiveTab("action")}>Action</button>
+                    <button className={`tabBtn px-3 h-8 rounded-lg border text-xs font-medium ${activeTab === "activity" ? "bg-neutral-900 text-white border-neutral-900" : "border-neutral-300 hover:bg-neutral-50"}`} onClick={() => setActiveTab("activity")}>Activity</button>
                 </div>
 
                 {/* Tab: Call */}
@@ -795,7 +1827,7 @@ export default function CarePlanPage() {
 
                 {/* Tab: Message */}
                 <div className={`p-4 space-y-3 ${activeTab === "message" ? "" : "hidden"}`}>
-                    <textarea ref={msgTextRef} rows="4" className="w-full rounded-lg border border-neutral-300 p-3 text-sm" placeholder="Type messageâ€¦"></textarea>
+                    <textarea ref={msgTextRef} rows="4" className="w-full rounded-lg border border-neutral-300 p-3 text-sm" placeholder="Type message..."></textarea>
                     <div className="flex items-center justify-between">
                         <input ref={msgToRef} className="h-9 rounded-lg border border-neutral-300 px-3 text-sm w-48" placeholder="To (phone/email)" />
                         <button className="px-3 h-9 rounded-lg bg-neutral-900 text-white text-sm" onClick={() => {
@@ -805,6 +1837,109 @@ export default function CarePlanPage() {
                             addActivity(drawerPatient.id, { type: "Message", status: "sent", text: `To ${to}: ${msg}`, progress: 100 });
                             if (msgTextRef.current) msgTextRef.current.value = "";
                         }}>Send</button>
+                    </div>
+                </div>
+
+                {/* Tab: Chat */}
+                <div className={`p-4 flex flex-col h-80 ${activeTab === "chat" ? "" : "hidden"}`}>
+                    <div className="flex-1 overflow-y-auto space-y-3 mb-3 border border-neutral-200 rounded-lg p-3 bg-neutral-50">
+                        <div className="flex gap-2">
+                            <div className="w-8 h-8 rounded-full bg-blue-500 text-white text-xs flex items-center justify-center flex-shrink-0">PT</div>
+                            <div className="bg-white rounded-lg p-2 shadow-sm max-w-[80%]">
+                                <div className="text-xs text-neutral-500 mb-1">{drawerPatient?.name || 'Patient'}</div>
+                                <div className="text-sm">Hello, I have a question about my medication.</div>
+                            </div>
+                        </div>
+                        <div className="flex gap-2 justify-end">
+                            <div className="bg-blue-600 text-white rounded-lg p-2 shadow-sm max-w-[80%]">
+                                <div className="text-sm">Of course! How can I help you today?</div>
+                            </div>
+                        </div>
+                        <div className="flex gap-2">
+                            <div className="w-8 h-8 rounded-full bg-blue-500 text-white text-xs flex items-center justify-center flex-shrink-0">PT</div>
+                            <div className="bg-white rounded-lg p-2 shadow-sm max-w-[80%]">
+                                <div className="text-sm">When should I take the new prescription?</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="flex gap-2">
+                        <input className="flex-1 h-9 rounded-lg border border-neutral-300 px-3 text-sm" placeholder="Type a message..." />
+                        <button className="px-4 h-9 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700">Send</button>
+                    </div>
+                </div>
+
+                {/* Tab: Action */}
+                <div className={`p-4 space-y-4 overflow-y-auto ${activeTab === "action" ? "" : "hidden"}`} style={{ maxHeight: 'calc(100vh - 200px)' }}>
+                    <div className="text-sm font-semibold text-neutral-900">Create Action for Task</div>
+                    
+                    <select className="w-full h-10 px-3 rounded-lg border border-neutral-300 text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                        <option value="">Select Action Type *</option>
+                        <option value="call">Follow-up Call</option>
+                        <option value="visit">Home Visit</option>
+                        <option value="medication">Medication Review</option>
+                        <option value="referral">Referral</option>
+                        <option value="assessment">Assessment</option>
+                        <option value="other">Other</option>
+                    </select>
+
+                    <select className="w-full h-10 px-3 rounded-lg border border-neutral-300 text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                        <option value="">Link to Task (Optional)</option>
+                        <option value="task1">Medication Review - Due Today</option>
+                        <option value="task2">Follow-up Appointment</option>
+                        <option value="task3">Care Plan Update</option>
+                    </select>
+
+                    <div className="grid grid-cols-2 gap-3">
+                        <select className="h-10 px-3 rounded-lg border border-neutral-300 text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                            <option value="urgent">Urgent</option>
+                        </select>
+                        <input type="datetime-local" className="h-10 px-3 rounded-lg border border-neutral-300 text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500" />
+                    </div>
+
+                    <textarea rows="3" className="w-full px-3 py-2 rounded-lg border border-neutral-300 text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none" placeholder="Describe the action to be taken *"></textarea>
+
+                    <select className="w-full h-10 px-3 rounded-lg border border-neutral-300 text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                        <option value="">Assign To *</option>
+                        <option value="nurse1">RN Sarah Johnson</option>
+                        <option value="nurse2">RN Michael Chen</option>
+                        <option value="doctor1">Dr. Emily Roberts</option>
+                        <option value="manager1">Care Manager - Jane Smith</option>
+                    </select>
+
+                    <textarea rows="2" className="w-full px-3 py-2 rounded-lg border border-neutral-300 text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none" placeholder="Expected outcome (optional)"></textarea>
+
+                    <div className="flex gap-2">
+                        <button className="flex-1 h-10 rounded-lg bg-green-600 text-white text-sm font-medium hover:bg-green-700 flex items-center justify-center gap-2">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                <path d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                            Create Action
+                        </button>
+                        <button className="px-4 h-10 rounded-lg border border-neutral-300 text-sm font-medium hover:bg-neutral-50">Cancel</button>
+                    </div>
+
+                    {/* Recent Actions */}
+                    <div className="pt-4 border-t border-neutral-200">
+                        <div className="text-sm font-semibold text-neutral-900 mb-3">Recent Actions</div>
+                        <div className="space-y-2">
+                            <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                                <div className="flex items-center justify-between">
+                                    <div className="text-sm font-medium text-green-800">Follow-up Call Completed</div>
+                                    <div className="text-xs text-green-600">2 hours ago</div>
+                                </div>
+                                <div className="text-xs text-green-700 mt-1">Patient contacted, vitals reviewed</div>
+                            </div>
+                            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                <div className="flex items-center justify-between">
+                                    <div className="text-sm font-medium text-blue-800">Medication Reminder Sent</div>
+                                    <div className="text-xs text-blue-600">Yesterday</div>
+                                </div>
+                                <div className="text-xs text-blue-700 mt-1">SMS reminder for prescription refill</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
